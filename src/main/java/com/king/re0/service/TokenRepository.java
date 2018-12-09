@@ -1,7 +1,13 @@
 package com.king.re0.service;
 
-import com.king.re0.entity.UserTokenEntity;
+import com.king.re0.entity.TokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TokenRepository extends JpaRepository<UserTokenEntity,Long> {
+import java.util.Optional;
+
+public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
+
+    Optional<TokenEntity> findByToken(String token);
+    Optional<TokenEntity> findByUserId(Long id);
+
 }

@@ -5,17 +5,14 @@ import com.king.re0.Key;
 import com.king.re0.base.entity.InfoEntity;
 import com.king.re0.base.error.ApiException;
 import com.king.re0.base.result.Result;
+import com.king.re0.entity.TokenEntity;
 import com.king.re0.entity.UserEntity;
-import com.king.re0.entity.UserTokenEntity;
 import com.king.re0.service.TokenRepository;
 import com.king.re0.service.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,19 +23,34 @@ import static com.king.re0.base.result.ResultCode.SUCCESS;
 @RequestMapping("/user")
 @RestController
 public class UserController {
-    private InfoEntity<Object> infoEntity=new InfoEntity<>();
+    private InfoEntity<Object> infoEntity = new InfoEntity<>();
  /*   @Autowired
     private UserService userService;*/
 
+    private final UserRepository userRepository;
+    private final TokenRepository tokenRepository;
+
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TokenRepository tokenRepository;
-   /* @Autowired
-    private MemoRepository memoRepository;*/
+    public UserController(UserRepository userRepository, TokenRepository tokenRepository) {
+        this.userRepository = userRepository;
+        this.tokenRepository = tokenRepository;
+    }
+
+    @GetMapping("/tourist")
+    public Object touristLogin() {
+        UserEntity userEntity = new UserEntity();
+        userEntity.setName("测试用例");
+        userEntity = userRepository.save(userEntity);
+        TokenEntity encode = encode(userEntity);
+        Map<String, Object> data = new HashMap<>();
+        data.put(Key.token, encode);
+        data.put(Key.user, userEntity);
+        return Result.<Map>builder().code(SUCCESS).data(data).build();
+    }
 
     /**
      * map :mobile and password
+     *
      * @param
      * @return
      */
@@ -47,16 +59,18 @@ public class UserController {
     public Object login(@RequestBody UserEntity body) {
         Optional<UserEntity> userEntity = userRepository.findByMobile(body.getMobile());
         if (!userEntity.isPresent()) throw new ApiException(10, "用户不存在");
-        else if(!userEntity.get().getPassword().equals(body.getPassword()))throw new ApiException(10,"用户或密码不正确");
+        else if (!userEntity.get().getPassword().equals(body.getPassword())) throw new ApiException(10, "用户或密码不正确");
         UserEntity entity = userEntity.get();
-        UserTokenEntity encode = Encode(entity);
-        Map<String,Object> data =new HashMap<>();
-        data.put(Key.user,entity);
-        data.put(Key.token,encode);
+        TokenEntity encode = encode(entity);
+        Map<String, Object> data = new HashMap<>();
+        data.put(Key.user, entity);
+        data.put(Key.token, encode);
         return Result.<Map>builder().code(SUCCESS).data(data).build();
     }
+
     /**
      * map :mobile and password
+     *
      * @param
      * @return
      */
@@ -72,20 +86,41 @@ public class UserController {
             return Result.<UserEntity>builder().code(SUCCESS).data(userRepository.save(newUser)).build();
         }
     }
-    public UserTokenEntity Encode(UserEntity entity){
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(entity.getMobile()).append("|").append(System.currentTimeMillis());
+
+    /*public TokenEntity Encode(UserEntity entity){
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(entity.getId()).append("|").append(System.currentTimeMillis());
         String token=null;
         try {
             token = Base64.getEncoder().encodeToString(buffer.toString().getBytes("UTF-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }finally {
-            UserTokenEntity tokenEntity = new UserTokenEntity();
-            tokenEntity.setMobile(entity.getMobile());
+            TokenEntity tokenEntity = new TokenEntity();
+            tokenEntity.setId(entity.getId());
             tokenEntity.setToken(token);
             tokenRepository.save(tokenEntity);
             return tokenEntity;
         }
+    }*/
+    public TokenEntity decode(String token) {
+        Optional<TokenEntity> repository = tokenRepository.findByToken(token);
+        return repository.orElse(null);
+    }
+
+    public TokenEntity encode(UserEntity userEntity) {
+        Optional<TokenEntity> repository = tokenRepository.findByUserId(userEntity.getId());
+        if (!repository.isPresent()) {
+            TokenEntity tokenEntity = new TokenEntity();
+            tokenEntity.setUserId(userEntity.getId());
+            tokenRepository.save(tokenEntity);
+            return encode(userEntity);
+        }
+        repository.ifPresent(tokenEntity -> {
+            String token = Base64.getEncoder().encodeToString((String.valueOf(userEntity.getId()) + "|" + System.currentTimeMillis()).getBytes(StandardCharsets.UTF_8));
+            tokenEntity.setToken(token);
+            tokenRepository.save(tokenEntity);
+        });
+        return repository.get();
     }
 }
