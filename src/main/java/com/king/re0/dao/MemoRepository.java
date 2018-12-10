@@ -1,4 +1,4 @@
-package com.king.re0.service;
+package com.king.re0.dao;
 
 import com.king.re0.entity.MemoEntity;
 import com.king.re0.entity.UserEntity;

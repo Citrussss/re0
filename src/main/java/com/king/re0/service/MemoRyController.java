@@ -1,7 +1,7 @@
-package com.king.re0.controller;
+package com.king.re0.service;
 
 import com.king.re0.Key;
-import com.king.re0.service.MemoRepository;
+import com.king.re0.dao.MemoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;

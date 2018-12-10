@@ -1,4 +1,4 @@
-package com.king.re0.controller;
+package com.king.re0.service;
 
 
 import com.king.re0.Key;
@@ -7,8 +7,8 @@ import com.king.re0.base.error.ApiException;
 import com.king.re0.base.result.Result;
 import com.king.re0.entity.TokenEntity;
 import com.king.re0.entity.UserEntity;
-import com.king.re0.service.TokenRepository;
-import com.king.re0.service.UserRepository;
+import com.king.re0.dao.TokenRepository;
+import com.king.re0.dao.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

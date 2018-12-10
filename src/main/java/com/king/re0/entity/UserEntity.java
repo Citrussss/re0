@@ -19,6 +19,7 @@ public class UserEntity {
     @Column(name = "name")
     private String name;
     @Column(name = "password")
+//    @Temporal(TemporalType.TIME)
     private String password;
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY,cascade = {CascadeType.REMOVE},mappedBy = "userEntity")

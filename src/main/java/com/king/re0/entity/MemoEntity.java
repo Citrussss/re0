@@ -1,5 +1,8 @@
 package com.king.re0.entity;
 
+
+import com.vividsolutions.jts.geom.Point;
+
 import javax.persistence.*;
 
 @Entity
@@ -20,6 +23,8 @@ public class MemoEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;
+    @Column()
+    private Point point;
 
     public UserEntity getUserEntity() {
         return userEntity;
