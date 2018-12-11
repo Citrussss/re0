@@ -5,18 +5,21 @@ import com.king.re0.Key;
 import com.king.re0.base.entity.InfoEntity;
 import com.king.re0.base.error.ApiException;
 import com.king.re0.base.result.Result;
-import com.king.re0.entity.TokenEntity;
-import com.king.re0.entity.UserEntity;
 import com.king.re0.dao.TokenRepository;
 import com.king.re0.dao.UserRepository;
+import com.king.re0.entity.TokenEntity;
+import com.king.re0.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 
 import static com.king.re0.base.result.ResultCode.SUCCESS;
 
@@ -24,9 +27,8 @@ import static com.king.re0.base.result.ResultCode.SUCCESS;
 @RestController
 public class UserController {
     private InfoEntity<Object> infoEntity = new InfoEntity<>();
- /*   @Autowired
-    private UserService userService;*/
-
+    /*   @Autowired
+       private UserService userService;*/
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
 
@@ -37,15 +39,18 @@ public class UserController {
     }
 
     @GetMapping("/tourist")
-    public Object touristLogin() {
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName("测试用例");
-        userEntity = userRepository.save(userEntity);
-        TokenEntity encode = encode(userEntity);
-        Map<String, Object> data = new HashMap<>();
-        data.put(Key.token, encode);
-        data.put(Key.user, userEntity);
-        return Result.<Map>builder().code(SUCCESS).data(data).build();
+    public Flux<Object> touristLogin(@RequestHeader(value = "Authorization") String authorization) {
+        Flux<Object> defer = Flux.defer(() -> {
+            UserEntity userEntity = new UserEntity();
+            userEntity.setName("测试用例");
+            userEntity = userRepository.save(userEntity);
+            TokenEntity encode = encode(userEntity);
+            Map<String, Object> data = new HashMap<>();
+            data.put(Key.token, encode);
+            data.put(Key.user, userEntity);
+            return Flux.just(Result.<Map>builder().code(SUCCESS).data(data).build());
+        });
+        return defer.subscribeOn(Schedulers.fromExecutor(Executors.newFixedThreadPool(100)));
     }
 
     /**
