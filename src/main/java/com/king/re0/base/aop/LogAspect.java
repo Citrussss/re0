@@ -1,19 +1,26 @@
 package com.king.re0.base.aop;
 
+import com.king.re0.base.result.Result;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+
+import static com.king.re0.base.result.ResultCode.SUCCESS;
+
 @Aspect
 @Component
 public class LogAspect {
     @Pointcut("execution(public * com.king.re0.service.*.*(..))")
-    public void webLog(){}
+    public void webLog() {
+    }
+
     @Before("webLog()")
     public void deBefore(JoinPoint joinPoint) throws Throwable {
         // 接收到请求，记录请求内容
@@ -37,24 +44,25 @@ public class LogAspect {
 
     //后置异常通知
     @AfterThrowing("webLog()")
-    public void throwss(JoinPoint jp){
+    public void throwss(JoinPoint jp) {
         System.out.println("方法异常时执行.....");
     }
 
     //后置最终通知,final增强，不管是抛出异常或者正常退出都会执行
     @After("webLog()")
-    public void after(JoinPoint jp){
+    public void after(JoinPoint jp) {
         System.out.println("方法最后执行.....");
     }
 
     //环绕通知,环绕增强，相当于MethodInterceptor
     @Around("webLog()")
-    public Object arround(ProceedingJoinPoint pjp) {
+    public Flux arround(ProceedingJoinPoint pjp) {
         System.out.println("方法环绕start.....");
         try {
-            Object o =  pjp.proceed();
-            System.out.println("方法环绕proceed，结果是 :" + o);
-            return o;
+            Flux flux = (Flux) pjp.proceed();
+            System.out.println("方法环绕proceed，结果是 :" + flux);
+//            return flux.map(o -> "123");
+            return flux.map(o -> Result.builder().code(SUCCESS).data(o).build());
         } catch (Throwable e) {
             e.printStackTrace();
             return null;

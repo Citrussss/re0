@@ -4,7 +4,6 @@ package com.king.re0.service;
 import com.king.re0.Key;
 import com.king.re0.base.entity.InfoEntity;
 import com.king.re0.base.error.ApiException;
-import com.king.re0.base.result.Result;
 import com.king.re0.dao.TokenRepository;
 import com.king.re0.dao.UserRepository;
 import com.king.re0.entity.TokenEntity;
@@ -12,6 +11,7 @@ import com.king.re0.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 
-import static com.king.re0.base.result.ResultCode.SUCCESS;
-
 @RequestMapping("/user")
 @RestController
 public class UserController {
@@ -31,6 +29,7 @@ public class UserController {
        private UserService userService;*/
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
+    private final Scheduler scheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(100));
 
     @Autowired
     public UserController(UserRepository userRepository, TokenRepository tokenRepository) {
@@ -48,9 +47,9 @@ public class UserController {
             Map<String, Object> data = new HashMap<>();
             data.put(Key.token, encode);
             data.put(Key.user, userEntity);
-            return Flux.just(Result.<Map>builder().code(SUCCESS).data(data).build());
+            return Flux.just(data);
         });
-        return defer.subscribeOn(Schedulers.fromExecutor(Executors.newFixedThreadPool(100)));
+        return defer.subscribeOn(scheduler);
     }
 
     /**
@@ -70,7 +69,7 @@ public class UserController {
         Map<String, Object> data = new HashMap<>();
         data.put(Key.user, entity);
         data.put(Key.token, encode);
-        return Result.<Map>builder().code(SUCCESS).data(data).build();
+        return data;
     }
 
     /**
@@ -88,8 +87,16 @@ public class UserController {
             UserEntity newUser = new UserEntity();
             newUser.setMobile(body.getMobile());
             newUser.setPassword(body.getPassword());
-            return Result.<UserEntity>builder().code(SUCCESS).data(userRepository.save(newUser)).build();
+            return userRepository.save(newUser);
         }
+    }
+
+    @GetMapping("/findAll")
+    public Flux<?> findAll() {
+        return Flux.just(userRepository.findAll())
+                .subscribeOn(scheduler)
+//                .flatMap(Flux::fromIterable)
+                ;
     }
 
     /*public TokenEntity Encode(UserEntity entity){
