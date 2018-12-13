@@ -15,10 +15,7 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 
 @RequestMapping("/user")
@@ -91,12 +88,15 @@ public class UserController {
         }
     }
 
+    /**
+     * 返回所有的用户信息
+     *
+     * @return
+     */
     @GetMapping("/findAll")
-    public Flux<?> findAll() {
+    public Flux<List<UserEntity>> findAll() {
         return Flux.just(userRepository.findAll())
-                .subscribeOn(scheduler)
-//                .flatMap(Flux::fromIterable)
-                ;
+                .subscribeOn(scheduler);
     }
 
     /*public TokenEntity Encode(UserEntity entity){

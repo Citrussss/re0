@@ -10,34 +10,36 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.util.Arrays;
 
 import static com.king.re0.base.result.ResultCode.SUCCESS;
 
 @Aspect
 @Component
-public class LogAspect {
+public class GlobalAspect {
     @Pointcut("execution(public * com.king.re0.service.*.*(..))")
     public void webLog() {
     }
 
     @Before("webLog()")
-    public void deBefore(JoinPoint joinPoint) throws Throwable {
+    public void deBefore(JoinPoint joinPoint) {
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-
-        // 记录下请求内容
-        System.out.println("URL : " + request.getRequestURL().toString());
-        System.out.println("HTTP_METHOD : " + request.getMethod());
-        System.out.println("IP : " + request.getRemoteAddr());
-        System.out.println("CLASS_METHOD : " + joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName());
-        System.out.println("ARGS : " + Arrays.toString(joinPoint.getArgs()));
-
+        HttpServletRequest request = null;
+        if (attributes != null) {
+            request = attributes.getRequest();
+            // 记录下请求内容
+            System.out.println("URL : " + request.getRequestURL().toString());
+            System.out.println("HTTP_METHOD : " + request.getMethod());
+            System.out.println("IP : " + request.getRemoteAddr());
+            System.out.println("CLASS_METHOD : " + joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName());
+            System.out.println("ARGS : " + Arrays.toString(joinPoint.getArgs()));
+        }
     }
 
     @AfterReturning(returning = "ret", pointcut = "webLog()")
-    public void doAfterReturning(Object ret) throws Throwable {
+    public void doAfterReturning(Object ret) {
         // 处理完请求，返回内容
         System.out.println("方法的返回值 : " + ret);
     }
