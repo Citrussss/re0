@@ -2,6 +2,7 @@ package com.king.re0.service;
 
 
 import com.king.re0.Key;
+import com.king.re0.base.aotu.ExecutorManager;
 import com.king.re0.base.entity.InfoEntity;
 import com.king.re0.base.error.ApiException;
 import com.king.re0.dao.TokenRepository;
@@ -11,12 +12,9 @@ import com.king.re0.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.concurrent.Executors;
 
 @RequestMapping("/user")
 @RestController
@@ -26,12 +24,13 @@ public class UserController {
        private UserService userService;*/
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-    private final Scheduler scheduler = Schedulers.fromExecutor(Executors.newFixedThreadPool(100));
+    private final ExecutorManager executorManager;
 
     @Autowired
-    public UserController(UserRepository userRepository, TokenRepository tokenRepository) {
+    public UserController(UserRepository userRepository, TokenRepository tokenRepository, ExecutorManager executorManager) {
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
+        this.executorManager = executorManager;
     }
 
     @GetMapping("/tourist")
@@ -46,7 +45,7 @@ public class UserController {
             data.put(Key.user, userEntity);
             return Flux.just(data);
         });
-        return defer.subscribeOn(scheduler);
+        return defer.subscribeOn(executorManager.getScheduler());
     }
 
     /**
@@ -96,7 +95,7 @@ public class UserController {
     @GetMapping("/findAll")
     public Flux<List<UserEntity>> findAll() {
         return Flux.just(userRepository.findAll())
-                .subscribeOn(scheduler);
+                .subscribeOn(executorManager.getScheduler());
     }
 
     /*public TokenEntity Encode(UserEntity entity){
