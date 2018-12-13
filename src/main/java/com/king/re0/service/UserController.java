@@ -93,7 +93,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/findAll")
-    public Flux<List<UserEntity>> findAll() {
+    public Flux<?> findAll() {
         return Flux.just(userRepository.findAll())
                 .subscribeOn(executorManager.getScheduler());
     }
@@ -114,12 +114,12 @@ public class UserController {
             return tokenEntity;
         }
     }*/
-    public TokenEntity decode(String token) {
+    private TokenEntity decode(String token) {
         Optional<TokenEntity> repository = tokenRepository.findByToken(token);
         return repository.orElse(null);
     }
 
-    public TokenEntity encode(UserEntity userEntity) {
+    private TokenEntity encode(UserEntity userEntity) {
         Optional<TokenEntity> repository = tokenRepository.findByUserId(userEntity.getId());
         if (!repository.isPresent()) {
             TokenEntity tokenEntity = new TokenEntity();
