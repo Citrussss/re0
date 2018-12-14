@@ -24,7 +24,9 @@ public class UserEntity {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY,cascade = {CascadeType.REMOVE},mappedBy = "userEntity")
     private Set<MemoEntity> memoEntities;
-
+    @JsonIgnore
+    @OneToOne(optional=false, mappedBy="userEntity")
+    public TokenEntity tokenEntity;
     @Override
     public String toString() {
         return "UserEntity{" +

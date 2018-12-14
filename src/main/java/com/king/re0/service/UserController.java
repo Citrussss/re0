@@ -120,10 +120,10 @@ public class UserController {
     }
 
     private TokenEntity encode(UserEntity userEntity) {
-        Optional<TokenEntity> repository = tokenRepository.findByUserId(userEntity.getId());
+        Optional<TokenEntity> repository = tokenRepository.findByUserEntity(userEntity);
         if (!repository.isPresent()) {
             TokenEntity tokenEntity = new TokenEntity();
-            tokenEntity.setUserId(userEntity.getId());
+            tokenEntity.setUserEntity(userEntity);
             tokenRepository.save(tokenEntity);
             return encode(userEntity);
         }

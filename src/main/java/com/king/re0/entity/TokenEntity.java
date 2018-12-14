@@ -12,8 +12,9 @@ public class TokenEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "userId")
-    private Long userId;
+    @OneToOne(optional=false)
+    @JoinColumn(name = "user_id",unique = true)
+    private UserEntity userEntity;
     @Column(name = "token")
     private String token;
 }

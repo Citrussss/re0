@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface MemoRepository extends JpaRepository<MemoEntity, Long> {
 
     Optional<List<MemoEntity>> findAllByUserEntity(UserEntity userEntity);
+//    Optional<List<MemoEntity>> findAllByUserId(Integer integer);
 }

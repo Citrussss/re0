@@ -47,8 +47,7 @@ public class MemoController {
 ////        return ;
 //    }
 
-    public TokenEntity decode(String token) {
-        Optional<TokenEntity> repository = tokenRepository.findByToken(token);
-        return repository.orElse(null);
+    private TokenEntity decode(String token) {
+        return tokenRepository.findByToken(token).orElse(null);
     }
 }
