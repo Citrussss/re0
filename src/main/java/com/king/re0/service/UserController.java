@@ -11,10 +11,12 @@ import com.king.re0.entity.TokenEntity;
 import com.king.re0.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RequestMapping("/user")
 @RestController
@@ -34,8 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/tourist")
-    public Flux<Object> touristLogin(@RequestHeader(value = "Authorization") String authorization) {
-        Flux<Object> defer = Flux.defer(() -> {
+    public Object touristLogin() {
             UserEntity userEntity = new UserEntity();
             userEntity.setName("测试用例");
             userEntity = userRepository.save(userEntity);
@@ -43,9 +44,7 @@ public class UserController {
             Map<String, Object> data = new HashMap<>();
             data.put(Key.token, encode);
             data.put(Key.user, userEntity);
-            return Flux.just(data);
-        });
-        return defer.subscribeOn(executorManager.getScheduler());
+            return data;
     }
 
     /**
@@ -93,9 +92,8 @@ public class UserController {
      * @return
      */
     @GetMapping("/findAll")
-    public Flux<?> findAll() {
-        return Flux.just(userRepository.findAll())
-                .subscribeOn(executorManager.getScheduler());
+    public Object findAll() {
+        return userRepository.findAll();
     }
 
     /*public TokenEntity Encode(UserEntity entity){

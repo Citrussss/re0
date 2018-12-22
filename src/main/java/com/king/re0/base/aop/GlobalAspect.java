@@ -7,10 +7,8 @@ import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.Arrays;
 
 import static com.king.re0.base.result.ResultCode.SUCCESS;
@@ -58,13 +56,12 @@ public class GlobalAspect {
 
     //环绕通知,环绕增强，相当于MethodInterceptor
     @Around("webLog()")
-    public Flux arround(ProceedingJoinPoint pjp) {
+    public Object arround(ProceedingJoinPoint pjp) {
         System.out.println("方法环绕start.....");
         try {
-            Flux flux = (Flux) pjp.proceed();
-            System.out.println("方法环绕proceed，结果是 :" + flux);
-//            return flux.map(o -> "123");
-            return flux.map(o -> Result.builder().code(SUCCESS).data(o).build());
+            Object o = pjp.proceed();
+            System.out.println("方法环绕proceed，结果是 :" + o );
+            return  Result.builder().code(SUCCESS).data(o).build();
         } catch (Throwable e) {
             e.printStackTrace();
             return null;
