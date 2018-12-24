@@ -11,6 +11,7 @@ import com.king.re0.entity.TokenEntity;
 import com.king.re0.entity.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -45,6 +46,10 @@ public class UserController {
             data.put(Key.token, encode);
             data.put(Key.user, userEntity);
             return data;
+    }
+    @GetMapping("/fluxTourist")
+    public Object fluxTouristLogin() {
+        return Flux.create(it->it.next(touristLogin()));
     }
 
     /**

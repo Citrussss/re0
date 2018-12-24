@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -16,8 +17,12 @@ import static com.king.re0.base.result.ResultCode.SUCCESS;
 @Aspect
 @Component
 public class GlobalAspect {
-    @Pointcut("execution(public * com.king.re0.service.*.*(..))")
+    @Pointcut("execution(public * com.king.re0.service.*.*(..)) && !execution(public * com.king.re0.service.*.flux*(..)) ")
     public void webLog() {
+    }
+
+    @Pointcut("execution(public * com.king.re0.service.*.flux*(..))")
+    public void flux() {
     }
 
     @Before("webLog()")
@@ -56,12 +61,23 @@ public class GlobalAspect {
 
     //环绕通知,环绕增强，相当于MethodInterceptor
     @Around("webLog()")
-    public Object arround(ProceedingJoinPoint pjp) {
+    public Object around(ProceedingJoinPoint pjp) {
         System.out.println("方法环绕start.....");
         try {
             Object o = pjp.proceed();
-            System.out.println("方法环绕proceed，结果是 :" + o );
-            return  Result.builder().code(SUCCESS).data(o).build();
+            System.out.println("方法环绕proceed，结果是 :" + o);
+            return Result.builder().code(SUCCESS).data(o).build();
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Around("flux()")
+    public Object aroundFlux(ProceedingJoinPoint pjp) {
+        try {
+            Flux o = (Flux) pjp.proceed();
+            return o.map(it->Result.builder().code(SUCCESS).data(it).build());
         } catch (Throwable e) {
             e.printStackTrace();
             return null;
