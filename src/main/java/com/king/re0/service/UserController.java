@@ -39,7 +39,7 @@ public class UserController {
     @GetMapping("/tourist")
     public Object touristLogin() {
             UserEntity userEntity = new UserEntity();
-            userEntity.setName("测试用例");
+            userEntity.setName("游客");
             userEntity = userRepository.save(userEntity);
             TokenEntity encode = encode(userEntity);
             Map<String, Object> data = new HashMap<>();

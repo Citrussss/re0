@@ -24,12 +24,12 @@ public class Re0ApplicationTests {
 //	   System.out.print(fun(S.toCharArray(),0,0,K,0)+
 //               fun(S.toCharArray(),0,0,K,0));
 	}
-	private char fun(char[] chars,int start,int lenth,int target,int cycle){
+	private char fun(char[] chars,int start,long lenth,long target,int cycle){
 //	    System.out.println("target"+target);
         for (int i = start; i < chars.length; i++) {
             char c = chars[i];
            if(isShuzi(c)){
-                int newLenth = (lenth + i - start) * (c-48);
+               long newLenth = (lenth + i - start) * (c-48);
                 if(newLenth<target){
 //                    System.out.println(newLenth);
                     return fun(chars,i+1,newLenth,target,cycle+1);
