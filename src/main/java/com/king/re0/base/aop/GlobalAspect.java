@@ -4,6 +4,7 @@ import com.king.re0.base.result.Result;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -16,8 +17,9 @@ import static com.king.re0.base.result.ResultCode.SUCCESS;
 
 @Aspect
 @Component
-public class GlobalAspect {
+public class GlobalAspect implements Ordered {
     @Pointcut("execution(public * com.king.re0.service.*.*(..)) && !execution(public * com.king.re0.service.*.flux*(..)) ")
+//    @Pointcut("execution(public * com.king.re0.service.*.flux*(..))")
     public void webLog() {
     }
 
@@ -60,28 +62,30 @@ public class GlobalAspect {
     }
 
     //环绕通知,环绕增强，相当于MethodInterceptor
+    //**不要对切点进行错误捕捉，否者全局的捕捉方法无法感知错误
     @Around("webLog()")
-    public Object around(ProceedingJoinPoint pjp) {
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
         System.out.println("方法环绕start.....");
-        try {
             Object o = pjp.proceed();
             System.out.println("方法环绕proceed，结果是 :" + o);
             return Result.builder().code(SUCCESS).data(o).build();
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return null;
-        }
+
     }
 
     @Around("flux()")
     public Object aroundFlux(ProceedingJoinPoint pjp) {
         try {
             Flux o = (Flux) pjp.proceed();
-            return o.map(it->Result.builder().code(SUCCESS).data(it).build());
+            return o.map(it -> Result.builder().code(SUCCESS).data(it).build());
         } catch (Throwable e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public int getOrder() {
+        return 100;
     }
 }
 
