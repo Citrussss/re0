@@ -8,12 +8,11 @@ import com.king.re0.dao.UserRepository;
 import com.king.re0.entity.MemoEntity;
 import com.king.re0.entity.TokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +40,22 @@ public class MemoController {
         return Flux.just(memoRepository.findAll()).subscribeOn(executorManager.getScheduler());
     }
 
+    @PostMapping("/add")
+    public Object addMemoToken(@RequestBody MemoEntity memoEntity, @RequestHeader(value = "Authorization") String authorization) {
+        Optional<TokenEntity> tokenEntity = tokenRepository.findByToken(authorization);
+        tokenEntity.ifPresent(
+                it -> {
+                    memoEntity.setUserEntity(it.getUserEntity());
+                    memoRepository.save(memoEntity);
+                }
+        );
+        return memoEntity;
+    }
+    @GetMapping("/findMyList")
+    public Object findByToken(@RequestHeader(value = "Authorization") String authorization){
+        Optional<List<MemoEntity>> memoEntities = tokenRepository.findByToken(authorization).flatMap(it -> memoRepository.findAllByUserEntity(it.getUserEntity()));
+        return memoEntities.orElseGet(ArrayList::new);
+    }
 //    @PostMapping("/add")
 //    private InfoEntity addMemo(@RequestHeader(value="Authorization") String authorization){
 ////        userRepository.findById(decode(authorization).getUserId());

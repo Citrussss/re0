@@ -9,6 +9,8 @@ import com.king.re0.dao.TokenRepository;
 import com.king.re0.dao.UserRepository;
 import com.king.re0.entity.TokenEntity;
 import com.king.re0.entity.UserEntity;
+
+import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -84,6 +86,7 @@ public class UserController {
         Optional<UserEntity> result = userRepository.findByMobile(body.getMobile());
         if (result.isPresent()) throw new ApiException(10, "用户已存在");
         else {
+            body.checkRegistrationLegal();
             UserEntity newUser = new UserEntity();
             newUser.setMobile(body.getMobile());
             newUser.setPassword(body.getPassword());
@@ -101,6 +104,19 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    @PostMapping("/password")
+    public Object changePassword(@RequestBody UserEntity body) {
+        Optional<UserEntity> result = userRepository.findByMobile(body.getMobile());
+        if (!result.isPresent()) throw new ApiException(10, "用户不存在");
+        else if(StringUtil.isNullOrEmpty(body.getPassword())){throw new ApiException(10,"新的密码不能为空");}
+        else {
+            result.ifPresent(it->{
+                it.setPassword(body.getPassword());
+                userRepository.save(it);
+            });
+            return result.get();
+        }
+    }
     /*public TokenEntity Encode(UserEntity entity){
         StringBuilder buffer = new StringBuilder();
         buffer.append(entity.getId()).append("|").append(System.currentTimeMillis());

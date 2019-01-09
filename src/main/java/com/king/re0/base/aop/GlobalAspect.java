@@ -1,9 +1,13 @@
 package com.king.re0.base.aop;
 
+import com.king.re0.base.error.ApiException;
 import com.king.re0.base.result.Result;
+import com.king.re0.dao.TokenRepository;
+import com.king.re0.entity.TokenEntity;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -12,12 +16,21 @@ import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static com.king.re0.base.result.ResultCode.SUCCESS;
 
 @Aspect
 @Component
 public class GlobalAspect implements Ordered {
+
+    @Autowired
+    public GlobalAspect(TokenRepository tokenRepository) {
+        this.tokenRepository = tokenRepository;
+    }
+
+    private final TokenRepository tokenRepository;
+
     @Pointcut("execution(public * com.king.re0.service.*.*(..)) && !execution(public * com.king.re0.service.*.flux*(..)) ")
 //    @Pointcut("execution(public * com.king.re0.service.*.flux*(..))")
     public void webLog() {
@@ -25,6 +38,20 @@ public class GlobalAspect implements Ordered {
 
     @Pointcut("execution(public * com.king.re0.service.*.flux*(..))")
     public void flux() {
+    }
+    @Pointcut("execution(public * com.king.re0.service.*.*Token(..))")
+    public void token() {
+    }
+    @Before("token()")
+    public void checkToken(JoinPoint joinPoint) {
+        // 接收到请求，记录请求内容
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = null;
+        if (attributes != null) {
+            String authorization = attributes.getRequest().getHeader("Authorization");
+            Optional<TokenEntity> byToken = tokenRepository.findByToken(authorization);
+            if(!byToken.isPresent())throw new ApiException(10,"Authorization错误");
+        }
     }
 
     @Before("webLog()")

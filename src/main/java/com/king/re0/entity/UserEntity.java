@@ -2,9 +2,12 @@ package com.king.re0.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.king.re0.base.error.ApiException;
+import io.netty.util.internal.StringUtil;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -37,4 +40,22 @@ public class UserEntity {
                 ", memoEntities=" + memoEntities +
                 '}';
     }
+    public void checkRegistrationLegal(){
+        if(StringUtil.isNullOrEmpty(getPassword()))throw new ApiException(10,"密码不能为空");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserEntity that = (UserEntity) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(mobile, that.mobile);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, mobile);
+    }
+
 }
