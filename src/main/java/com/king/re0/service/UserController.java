@@ -63,6 +63,7 @@ public class UserController {
 
     @PostMapping("/login")
     public Object login(@RequestBody UserEntity body) {
+        if(body.getMobile()==null||body.getPassword()==null)throw new ApiException(10,"用户或密码不得为空");
         Optional<UserEntity> userEntity = userRepository.findByMobile(body.getMobile());
         if (!userEntity.isPresent()) throw new ApiException(10, "用户不存在");
         else if (!userEntity.get().getPassword().equals(body.getPassword())) throw new ApiException(10, "用户或密码不正确");
