@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,6 +56,11 @@ public class MemoController {
     @GetMapping("/findMyList")
     public Object findByToken(@RequestHeader(value = "Authorization") String authorization){
         Optional<List<MemoEntity>> memoEntities = tokenRepository.findByToken(authorization).flatMap(it -> memoRepository.findAllByUserEntity(it.getUserEntity()));
+        return memoEntities.orElseGet(ArrayList::new);
+    }
+    @GetMapping("/findSSSS")
+    public Object findSSSS(@RequestBody HashMap<String,BigDecimal> requestBody){
+        Optional<List<MemoEntity>> memoEntities = memoRepository.findSSSS(requestBody.get("1"),requestBody.get("2"),requestBody.get("3"));
         return memoEntities.orElseGet(ArrayList::new);
     }
 //    @PostMapping("/add")

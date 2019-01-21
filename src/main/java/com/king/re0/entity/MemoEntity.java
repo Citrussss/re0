@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.Point;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -30,6 +31,10 @@ public class MemoEntity {
     private UserEntity userEntity;
     @Column(columnDefinition = "geometry(Point)")
     private Point point;
+    @Column(name = "longitude")
+    private BigDecimal longitude;
+    @Column(name = "latitude")
+    private BigDecimal latitude;
 
     @Override
     public boolean equals(Object o) {
