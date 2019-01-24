@@ -1,3 +1,4 @@
+
 buildscript {
     ext {
         springBootVersion = '2.1.1.RELEASE'
@@ -10,31 +11,33 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
-group = 'com.king'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
-
-dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    implementation('org.springframework.boot:spring-boot-starter-web')
-    runtimeOnly('mysql:mysql-connector-java')
-    compileOnly('org.projectlombok:lombok')
-    testImplementation('org.springframework.boot:spring-boot-starter-test')
-    implementation('org.hibernate:hibernate-spatial')
-//    implementation('com.vividsolutions:jts')
-    implementation('org.springframework.boot:spring-boot-starter-aop')
-
-    implementation('org.springframework.boot:spring-boot-starter-webflux')
-
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
 
+ext{
+    compile_sdk_version = 28
+    build_tools_version = '28.0.0'
+    min_sdk_version = 16
+    target_sdk_version = 28
+    support_version = '28.0.0'
+
+    version_code = 9
+    version_name = '1.0.5'
+
+    anko_version = '0.10.1'
+    gson = '2.8.1'
+    retrofit = '2.2.0'
+    binding_model = "1.3.0"
+    dbflow_version="4.2.4"
+    butterknifeVersion = '8.4.0'
+    dagger_version = '2.16'
+    glide_version = "4.7.1"
+    banner_version = "1.4.10"
+}

@@ -1,1 +1,2 @@
-rootProject.name = 're0'
+include 'leedcode','app'
+
