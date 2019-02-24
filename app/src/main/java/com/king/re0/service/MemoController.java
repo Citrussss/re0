@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,19 +47,25 @@ public class MemoController {
         tokenEntity.ifPresent(
                 it -> {
                     memoEntity.setUserEntity(it.getUserEntity());
+                    memoEntity.setCreateTime(System.currentTimeMillis());
                     memoRepository.save(memoEntity);
                 }
         );
         return memoEntity;
     }
+
     @GetMapping("/findMyList")
-    public Object findByToken(@RequestHeader(value = "Authorization") String authorization){
+    public Object findByToken(@RequestHeader(value = "Authorization") String authorization) {
         Optional<List<MemoEntity>> memoEntities = tokenRepository.findByToken(authorization).flatMap(it -> memoRepository.findAllByUserEntity(it.getUserEntity()));
         return memoEntities.orElseGet(ArrayList::new);
     }
-    @GetMapping("/findSSSS")
-    public Object findSSSS(@RequestBody HashMap<String,BigDecimal> requestBody){
-        Optional<List<MemoEntity>> memoEntities = memoRepository.findSSSS(requestBody.get("1"),requestBody.get("2"),requestBody.get("3"));
+
+    @GetMapping("/findMemoByLocation")
+    public Object findMemoByLocationAndToken(@RequestParam HashMap<String, String> requestBody) {
+        Double longitude = Double.valueOf(requestBody.get("longitude"));
+        Double latitude = Double.valueOf(requestBody.get("latitude"));
+        Double distance = Double.valueOf(requestBody.get("distance"));
+        Optional<List<MemoEntity>> memoEntities = memoRepository.findByLocation2(longitude, latitude, distance);
         return memoEntities.orElseGet(ArrayList::new);
     }
 //    @PostMapping("/add")

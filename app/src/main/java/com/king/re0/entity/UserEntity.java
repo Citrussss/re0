@@ -37,7 +37,6 @@ public class UserEntity {
                 ", mobile=" + mobile +
                 ", name='" + name + '\'' +
                 ", password=" + password +
-                ", memoEntities=" + memoEntities +
                 '}';
     }
     public void checkRegistrationLegal(){

@@ -6,7 +6,6 @@ import com.vividsolutions.jts.geom.Point;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.Objects;
 
 @Entity
@@ -32,9 +31,9 @@ public class MemoEntity {
     @Column(columnDefinition = "geometry(Point)")
     private Point point;
     @Column(name = "longitude")
-    private BigDecimal longitude;
+    private Double longitude;
     @Column(name = "latitude")
-    private BigDecimal latitude;
+    private Double latitude;
 
     @Override
     public boolean equals(Object o) {
@@ -46,12 +45,15 @@ public class MemoEntity {
                 Objects.equals(updateTime, that.updateTime) &&
                 Objects.equals(content, that.content) &&
                 Objects.equals(type, that.type) &&
-                Objects.equals(point, that.point);
+                Objects.equals(userEntity, that.userEntity) &&
+                Objects.equals(point, that.point) &&
+                Objects.equals(longitude, that.longitude) &&
+                Objects.equals(latitude, that.latitude);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, createTime, updateTime, content, type, point);
+        return Objects.hash(id, createTime, updateTime, content, type, userEntity, point, longitude, latitude);
     }
 
     @Override
@@ -62,7 +64,10 @@ public class MemoEntity {
                 ", updateTime=" + updateTime +
                 ", content='" + content + '\'' +
                 ", type='" + type + '\'' +
+                ", userEntity=" + userEntity +
                 ", point=" + point +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
                 '}';
     }
 }
