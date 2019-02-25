@@ -17,19 +17,23 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @JsonIgnore
     @Column(name = "moblie")
     private Long mobile;
     @Column(name = "name")
     private String name;
+    @JsonIgnore
     @Column(name = "password")
-//    @Temporal(TemporalType.TIME)
     private String password;
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY,cascade = {CascadeType.REMOVE},mappedBy = "userEntity")
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE}, mappedBy = "userEntity")
     private Set<MemoEntity> memoEntities;
     @JsonIgnore
-    @OneToOne(optional=false, mappedBy="userEntity")
+    @OneToOne(optional = false, mappedBy = "userEntity")
     public TokenEntity tokenEntity;
+    @Column(name = "avatar")
+    private String avatar;
+
     @Override
     public String toString() {
         return "UserEntity{" +
@@ -39,8 +43,9 @@ public class UserEntity {
                 ", password=" + password +
                 '}';
     }
-    public void checkRegistrationLegal(){
-        if(StringUtil.isNullOrEmpty(getPassword()))throw new ApiException(10,"密码不能为空");
+
+    public void checkRegistrationLegal() {
+        if (StringUtil.isNullOrEmpty(getPassword())) throw new ApiException(10, "密码不能为空");
     }
 
     @Override

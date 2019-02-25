@@ -9,7 +9,6 @@ import com.king.re0.dao.TokenRepository;
 import com.king.re0.dao.UserRepository;
 import com.king.re0.entity.TokenEntity;
 import com.king.re0.entity.UserEntity;
-
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -40,18 +39,19 @@ public class UserController {
 
     @GetMapping("/tourist")
     public Object touristLogin() {
-            UserEntity userEntity = new UserEntity();
-            userEntity.setName("游客");
-            userEntity = userRepository.save(userEntity);
-            TokenEntity encode = encode(userEntity);
-            Map<String, Object> data = new HashMap<>();
-            data.put(Key.token, encode);
-            data.put(Key.user, userEntity);
-            return data;
+        UserEntity userEntity = new UserEntity();
+        userEntity.setName("游客");
+        userEntity = userRepository.save(userEntity);
+        TokenEntity encode = encode(userEntity);
+        Map<String, Object> data = new HashMap<>();
+        data.put(Key.token, encode);
+        data.put(Key.user, userEntity);
+        return data;
     }
+
     @GetMapping("/fluxTourist")
     public Object fluxTouristLogin() {
-        return Flux.create(it->it.next(touristLogin()));
+        return Flux.create(it -> it.next(touristLogin()));
     }
 
     /**
@@ -63,7 +63,7 @@ public class UserController {
 
     @PostMapping("/login")
     public Object login(@RequestBody UserEntity body) {
-        if(body.getMobile()==null||body.getPassword()==null)throw new ApiException(10,"用户或密码不得为空");
+        if (body.getMobile() == null || body.getPassword() == null) throw new ApiException(10, "用户或密码不得为空");
         Optional<UserEntity> userEntity = userRepository.findByMobile(body.getMobile());
         if (!userEntity.isPresent()) throw new ApiException(10, "用户不存在");
         else if (!userEntity.get().getPassword().equals(body.getPassword())) throw new ApiException(10, "用户或密码不正确");
@@ -105,19 +105,33 @@ public class UserController {
         return userRepository.findAll();
     }
 
+    /**
+     * 修改密码
+     * @param body
+     * @return
+     */
     @PostMapping("/password")
-    public Object changePassword(@RequestBody UserEntity body) {
+    public Object changePasswordByToken(@RequestBody UserEntity body) {
         Optional<UserEntity> result = userRepository.findByMobile(body.getMobile());
         if (!result.isPresent()) throw new ApiException(10, "用户不存在");
-        else if(StringUtil.isNullOrEmpty(body.getPassword())){throw new ApiException(10,"新的密码不能为空");}
-        else {
-            result.ifPresent(it->{
+        else if (StringUtil.isNullOrEmpty(body.getPassword())) {
+            throw new ApiException(10, "新的密码不能为空");
+        } else {
+            result.ifPresent(it -> {
                 it.setPassword(body.getPassword());
                 userRepository.save(it);
             });
             return result.get();
         }
     }
+
+    @GetMapping("/findById")
+    public Object findUserById(@RequestParam(name = "id") long id) {
+        Optional<UserEntity> result = userRepository.findById(id);
+        if(result.isPresent())return result.get();
+        else throw new ApiException(10,"查找的用户不存在");
+    }
+
     /*public TokenEntity Encode(UserEntity entity){
         StringBuilder buffer = new StringBuilder();
         buffer.append(entity.getId()).append("|").append(System.currentTimeMillis());

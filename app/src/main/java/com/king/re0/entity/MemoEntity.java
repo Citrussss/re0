@@ -1,8 +1,7 @@
 package com.king.re0.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.vividsolutions.jts.geom.Point;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -25,11 +24,12 @@ public class MemoEntity {
     @Column(name = "type")
     private String type;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
     @JoinColumn(name = "user_id")
+    @JsonUnwrapped(prefix = "create_user_")
     private UserEntity userEntity;
-    @Column(columnDefinition = "geometry(Point)")
-    private Point point;
+    private Integer createId;
+    //    @Column(columnDefinition = "geometry(Point)")
+//    private Point point;
     @Column(name = "longitude")
     private Double longitude;
     @Column(name = "latitude")
@@ -46,14 +46,13 @@ public class MemoEntity {
                 Objects.equals(content, that.content) &&
                 Objects.equals(type, that.type) &&
                 Objects.equals(userEntity, that.userEntity) &&
-                Objects.equals(point, that.point) &&
                 Objects.equals(longitude, that.longitude) &&
                 Objects.equals(latitude, that.latitude);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, createTime, updateTime, content, type, userEntity, point, longitude, latitude);
+        return Objects.hash(id, createTime, updateTime, content, type, userEntity, longitude, latitude);
     }
 
     @Override
@@ -65,7 +64,6 @@ public class MemoEntity {
                 ", content='" + content + '\'' +
                 ", type='" + type + '\'' +
                 ", userEntity=" + userEntity +
-                ", point=" + point +
                 ", longitude=" + longitude +
                 ", latitude=" + latitude +
                 '}';
