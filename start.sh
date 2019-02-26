@@ -1,6 +1,9 @@
 #!/bin/sh
 RESOURCE_NAME=app-0.0.1-SNAPSHOT.jar 
- 
+
+git checkout dev
+git pull
+
 tpid=`ps -ef|grep $RESOURCE_NAME|grep -v grep|grep -v kill|awk '{print $2}'`
 if [ ${tpid} ]; then
 echo 'Stop Process...'
