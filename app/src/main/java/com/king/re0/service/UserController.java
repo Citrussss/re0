@@ -7,6 +7,7 @@ import com.king.re0.base.entity.InfoEntity;
 import com.king.re0.base.error.ApiException;
 import com.king.re0.dao.TokenRepository;
 import com.king.re0.dao.UserRepository;
+import com.king.re0.entity.LoginEntity;
 import com.king.re0.entity.TokenEntity;
 import com.king.re0.entity.UserEntity;
 import io.netty.util.internal.StringUtil;
@@ -62,7 +63,7 @@ public class UserController {
      */
 
     @PostMapping("/login")
-    public Object login(@RequestBody UserEntity body) {
+    public Object login(@RequestBody LoginEntity body) {
         if (body.getMobile() == null || body.getPassword() == null) throw new ApiException(10, "用户或密码不得为空");
         Optional<UserEntity> userEntity = userRepository.findByMobile(body.getMobile());
         if (!userEntity.isPresent()) throw new ApiException(10, "用户不存在");
@@ -83,7 +84,7 @@ public class UserController {
      */
 
     @PostMapping("/register")
-    public Object register(@RequestBody UserEntity body) {
+    public Object register(@RequestBody LoginEntity body) {
         Optional<UserEntity> result = userRepository.findByMobile(body.getMobile());
         if (result.isPresent()) throw new ApiException(10, "用户已存在");
         else {
@@ -107,11 +108,13 @@ public class UserController {
 
     /**
      * 修改密码
+     *
      * @param body
      * @return
      */
     @PostMapping("/password")
-    public Object changePasswordByToken(@RequestBody UserEntity body) {
+    public Object changePasswordByToken(@RequestBody LoginEntity body) {
+
         Optional<UserEntity> result = userRepository.findByMobile(body.getMobile());
         if (!result.isPresent()) throw new ApiException(10, "用户不存在");
         else if (StringUtil.isNullOrEmpty(body.getPassword())) {
@@ -121,15 +124,15 @@ public class UserController {
                 it.setPassword(body.getPassword());
                 userRepository.save(it);
             });
-            return result.get();
+            return login(body);
         }
     }
 
     @GetMapping("/findById")
     public Object findUserById(@RequestParam(name = "id") long id) {
         Optional<UserEntity> result = userRepository.findById(id);
-        if(result.isPresent())return result.get();
-        else throw new ApiException(10,"查找的用户不存在");
+        if (result.isPresent()) return result.get();
+        else throw new ApiException(10, "查找的用户不存在");
     }
 
     /*public TokenEntity Encode(UserEntity entity){

@@ -34,7 +34,7 @@ public class MemoEntity {
     private Double longitude;
     @Column(name = "latitude")
     private Double latitude;
-
+    private boolean isCollect =false;
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

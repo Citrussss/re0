@@ -2,9 +2,11 @@ package com.king.re0.service;
 
 
 import com.king.re0.base.aotu.ExecutorManager;
+import com.king.re0.dao.CollectionRepository;
 import com.king.re0.dao.MemoRepository;
 import com.king.re0.dao.TokenRepository;
 import com.king.re0.dao.UserRepository;
+import com.king.re0.entity.CollectionEntity;
 import com.king.re0.entity.MemoEntity;
 import com.king.re0.entity.TokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,14 +25,15 @@ public class MemoController {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final ExecutorManager executorManager;
-
+    private final CollectionRepository collectionRepository;
     @Autowired
-    public MemoController(MemoRepository memoRepository, HttpServletRequest httpServletRequest, UserRepository userRepository, TokenRepository tokenRepository, ExecutorManager executorManager) {
+    public MemoController(MemoRepository memoRepository, HttpServletRequest httpServletRequest, UserRepository userRepository, TokenRepository tokenRepository, ExecutorManager executorManager, CollectionRepository collectionRepository) {
         this.memoRepository = memoRepository;
         this.httpServletRequest = httpServletRequest;
         this.userRepository = userRepository;
         this.tokenRepository = tokenRepository;
         this.executorManager = executorManager;
+        this.collectionRepository = collectionRepository;
     }
 
     @GetMapping("/list")
@@ -58,11 +61,23 @@ public class MemoController {
     }
 
     @GetMapping("/findMemoByLocation")
-    public Object findMemoByLocationAndToken(@RequestParam HashMap<String, String> requestBody) {
+    public Object findMemoByLocationAndToken(@RequestHeader(value = "Authorization") String authorization,@RequestParam HashMap<String, String> requestBody) {
         Double longitude = Double.valueOf(requestBody.get("longitude"));
         Double latitude = Double.valueOf(requestBody.get("latitude"));
         Double distance = Double.valueOf(requestBody.get("distance"));
+
         Optional<List<MemoEntity>> memoEntities = memoRepository.findByLocation2(longitude, latitude, distance);
+        Optional<TokenEntity> tokenEntity = tokenRepository.findByToken(authorization);
+
+        tokenEntity.ifPresent(it->{
+            Optional<List<CollectionEntity>> collectionEntities = collectionRepository.findAllByUser(it.getUserEntity());
+            if(memoEntities.isPresent() && collectionEntities.isPresent()){
+
+//                for (MemoEntity entity : memoEntities.get()) {
+//                    entity.setCollect();
+//                }
+            }
+        });
         return memoEntities.orElseGet(ArrayList::new);
     }
 //    @PostMapping("/add")
