@@ -10,6 +10,10 @@ import com.king.re0.entity.CollectionEntity;
 import com.king.re0.entity.MemoEntity;
 import com.king.re0.entity.TokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
@@ -68,9 +72,11 @@ public class MemoController {
 
         Optional<List<MemoEntity>> memoEntities = memoRepository.findByLocation2(longitude, latitude, distance);
         Optional<TokenEntity> tokenEntity = tokenRepository.findByToken(authorization);
+        Sort sort = new Sort(Sort.Direction.fromString("desc"), "id");
+        Pageable pageable =  PageRequest.of(0, 1, sort);
 
         tokenEntity.ifPresent(it->{
-            Optional<List<CollectionEntity>> collectionEntities = collectionRepository.findAllByUser(it.getUserEntity());
+            Optional<Page<CollectionEntity>> collectionEntities = collectionRepository.findAllByUser(it.getUserEntity(),pageable);
             if(memoEntities.isPresent() && collectionEntities.isPresent()){
 
 //                for (MemoEntity entity : memoEntities.get()) {
