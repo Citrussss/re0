@@ -3,7 +3,6 @@ package com.king.re0;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -99,7 +98,7 @@ public class Re0ApplicationTests {
     }
     @Test
     public void money(){
-        System.out.println(MoneyUtil.toChinese(new BigDecimal( "")));
+//        System.out.println(MoneyUtil.toChinese(new BigDecimal( "")));
     }
 
 }
