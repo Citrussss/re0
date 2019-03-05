@@ -1,11 +1,13 @@
 package com.king.re0.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "memo")
@@ -34,7 +36,11 @@ public class MemoEntity {
     private Double longitude;
     @Column(name = "latitude")
     private Double latitude;
-    private boolean isCollect =false;
+    private boolean isCollect = false;
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE}, mappedBy = "memo")
+    private Set<CollectionEntity> collectionEntities;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

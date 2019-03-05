@@ -74,14 +74,17 @@ public class MemoController {
         Optional<TokenEntity> tokenEntity = tokenRepository.findByToken(authorization);
         Sort sort = new Sort(Sort.Direction.fromString("desc"), "id");
         Pageable pageable =  PageRequest.of(0, 1, sort);
-
         tokenEntity.ifPresent(it->{
             Optional<Page<CollectionEntity>> collectionEntities = collectionRepository.findAllByUser(it.getUserEntity(),pageable);
             if(memoEntities.isPresent() && collectionEntities.isPresent()){
-
-//                for (MemoEntity entity : memoEntities.get()) {
-//                    entity.setCollect();
-//                }
+                for (MemoEntity memoEntity : memoEntities.get()) {
+                    for (CollectionEntity collectionEntity : memoEntity.getCollectionEntities()) {
+                        if (it.getUserEntity().getId().equals(collectionEntity.getUser().getId())) {
+                            memoEntity.setCollect(true);
+                            break;
+                        }
+                    }
+                }
             }
         });
         return memoEntities.orElseGet(ArrayList::new);
