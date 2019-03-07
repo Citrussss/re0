@@ -10,15 +10,13 @@ import com.king.re0.entity.CollectionEntity;
 import com.king.re0.entity.MemoEntity;
 import com.king.re0.entity.TokenEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/memo")
 @RestController
@@ -30,6 +28,7 @@ public class MemoController {
     private final TokenRepository tokenRepository;
     private final ExecutorManager executorManager;
     private final CollectionRepository collectionRepository;
+
     @Autowired
     public MemoController(MemoRepository memoRepository, HttpServletRequest httpServletRequest, UserRepository userRepository, TokenRepository tokenRepository, ExecutorManager executorManager, CollectionRepository collectionRepository) {
         this.memoRepository = memoRepository;
@@ -65,23 +64,27 @@ public class MemoController {
     }
 
     @GetMapping("/findMemoByLocation")
-    public Object findMemoByLocationAndToken(@RequestHeader(value = "Authorization") String authorization,@RequestParam HashMap<String, String> requestBody) {
-        Double longitude = Double.valueOf(requestBody.get("longitude"));
-        Double latitude = Double.valueOf(requestBody.get("latitude"));
-        Double distance = Double.valueOf(requestBody.get("distance"));
+    public Object findMemoByLocationAndToken(@RequestHeader(value = "Authorization") String authorization,
+                                             @RequestParam("longitude") Double longitude,
+                                             @RequestParam("latitude") Double latitude,
+                                             @RequestParam("distance") Double distance) {
+////        Double longitude = requestBody.get("longitude");
+//        Double latitude = requestBody.get("latitude");
+//        Double distance = requestBody.get("distance");
+        System.out.println(String.format("数据.....：%1s,%2s,%3s", longitude, latitude, distance));
 
         Optional<List<MemoEntity>> memoEntities = memoRepository.findByLocation2(longitude, latitude, distance);
         Optional<TokenEntity> tokenEntity = tokenRepository.findByToken(authorization);
-        Sort sort = new Sort(Sort.Direction.fromString("desc"), "id");
-        Pageable pageable =  PageRequest.of(0, 1, sort);
 
-        tokenEntity.ifPresent(it->{
-            Optional<Page<CollectionEntity>> collectionEntities = collectionRepository.findAllByUser(it.getUserEntity(),pageable);
-            if(memoEntities.isPresent() && collectionEntities.isPresent()){
-
-//                for (MemoEntity entity : memoEntities.get()) {
-//                    entity.setCollect();
-//                }
+        tokenEntity.ifPresent(it -> {
+            Optional<List<CollectionEntity>> collectionEntities = collectionRepository.findAllByUser(it.getUserEntity());
+            if (memoEntities.isPresent() && collectionEntities.isPresent()) {
+                CollectionEntity eq = new CollectionEntity();
+                eq.setUser(tokenEntity.get().getUserEntity());
+                for (MemoEntity memoEntity : memoEntities.get()) {
+                    eq.setMemo(memoEntity);
+                    memoEntity.setCollect(collectionEntities.get().contains(eq));
+                }
             }
         });
         return memoEntities.orElseGet(ArrayList::new);

@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @Table(name = "user_dev")
 @Data
-public class UserEntity {
+public class UserEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,7 +33,9 @@ public class UserEntity {
     public TokenEntity tokenEntity;
     @Column(name = "avatar")
     private String avatar;
-
+//    @JsonIgnore
+//    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE}, mappedBy = "user")
+//    private Set<CollectionEntity> collectionEntities;
     @Override
     public String toString() {
         return "UserEntity{" +
@@ -42,6 +44,9 @@ public class UserEntity {
                 ", name='" + name + '\'' +
                 ", password=" + password +
                 '}';
+    }
+
+    public UserEntity() {
     }
 
     public void checkRegistrationLegal() {

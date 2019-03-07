@@ -10,7 +10,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "memo")
 @Data
-public class MemoEntity {
+public class MemoEntity  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,14 @@ public class MemoEntity {
     private Double longitude;
     @Column(name = "latitude")
     private Double latitude;
-    private boolean isCollect =false;
+    private boolean collect;
+    public MemoEntity() {
+    }
+
+    //    @JsonIgnore
+//    @OneToMany(fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE}, mappedBy = "memo")
+//    private Set<CollectionEntity> collectionEntities;
+//    private boolean isCollect =false;
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

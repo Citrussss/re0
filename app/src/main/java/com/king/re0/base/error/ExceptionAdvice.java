@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Locale;
+
 
 @ControllerAdvice
 
@@ -25,7 +27,7 @@ public class ExceptionAdvice {
         e.printStackTrace();
         return Result.builder()
                 .code(10)
-                .message(e.getMessage())
+                .message(String.format(Locale.CHINA,"%1s>>>%2s",e.toString(),e.getMessage()))
                 .build();
     }
 }

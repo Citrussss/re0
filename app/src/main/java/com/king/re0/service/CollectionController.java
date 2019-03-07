@@ -6,10 +6,6 @@ import com.king.re0.dao.MemoRepository;
 import com.king.re0.dao.TokenRepository;
 import com.king.re0.entity.CollectionEntity;
 import com.king.re0.entity.TokenEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -32,19 +28,21 @@ public class CollectionController {
 
     @PostMapping("add")
     public Object addByToken(@RequestHeader(value = "Authorization") String authorization, @RequestParam("memoIds") Long... memoIds) {
-        List<CollectionEntity> list = new ArrayList<>();
         Optional<TokenEntity> tokenEntity = tokenRepository.findByToken(authorization);
         if (tokenEntity.isPresent()) {
             for (Long memoId : memoIds) {
                 memoRepository.findById(memoId).ifPresent(it -> {
-                            CollectionEntity entity = new CollectionEntity();
-                            entity.setUser(tokenEntity.get().getUserEntity());
-                            entity.setMemo(it);
-                            list.add(entity);
+                            Optional<CollectionEntity> collectionEntity = collectionRepository.findByUserAndMemo(tokenEntity.get().getUserEntity(), it);
+                            if (!collectionEntity.isPresent()) {
+                                CollectionEntity entity = new CollectionEntity();
+                                entity.setUser(tokenEntity.get().getUserEntity());
+                                entity.setMemo(it);
+                                collectionRepository.save(entity);
+                            }
                         }
                 );
             }
-            collectionRepository.saveAll(list);
+
             return true;
         }
         return false;
@@ -60,12 +58,15 @@ public class CollectionController {
 
     @GetMapping("findAll")
     public Object findAllByToken(@RequestHeader(value = "Authorization") String authorization) {
-        Sort sort = new Sort(Sort.Direction.fromString("desc"), "id");
-        Pageable pageable =  PageRequest.of(0, 1, sort);
         Optional<TokenEntity> tokenEntity = tokenRepository.findByToken(authorization);
         if (tokenEntity.isPresent()) {
-            Optional<Page<CollectionEntity>> entity = collectionRepository.findAllByUser(tokenEntity.get().getUserEntity(),pageable);
-            if (entity.isPresent()) return entity;
+            Optional<List<CollectionEntity>> entity = collectionRepository.findAllByUser(tokenEntity.get().getUserEntity());
+            if (entity.isPresent()) {
+                for (CollectionEntity collectionEntity : entity.get()) {
+                    collectionEntity.setUser(null);
+                }
+                return entity;
+            }
         }
         return new ArrayList<>();
     }

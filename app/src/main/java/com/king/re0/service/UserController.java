@@ -71,9 +71,9 @@ public class UserController {
         UserEntity entity = userEntity.get();
         TokenEntity encode = encode(entity);
         Map<String, Object> data = new HashMap<>();
-        data.put(Key.user, entity);
-        data.put(Key.token, encode);
-        return data;
+//        data.put(Key.user, entity);
+//        data.put(Key.token, encode);
+        return encode;
     }
 
     /**
