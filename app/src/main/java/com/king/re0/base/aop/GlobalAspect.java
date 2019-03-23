@@ -50,7 +50,7 @@ public class GlobalAspect implements Ordered {
         if (attributes != null) {
             String authorization = attributes.getRequest().getHeader("Authorization");
             Optional<TokenEntity> byToken = tokenRepository.findByToken(authorization);
-            if(!byToken.isPresent())throw new ApiException(10,"Authorization错误");
+            if(!byToken.isPresent())throw new ApiException(403,"Authorization错误");
         }
     }
 
