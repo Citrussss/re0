@@ -58,8 +58,15 @@ public class MemoController {
     }
 
     @GetMapping("/findMyList")
-    public Object findByToken(@RequestHeader(value = "Authorization") String authorization) {
-        Optional<List<MemoEntity>> memoEntities = tokenRepository.findByToken(authorization).flatMap(it -> memoRepository.findAllByUserEntity(it.getUserEntity()));
+    public Object findByToken(@RequestHeader(value = "Authorization") String authorization
+            , @RequestParam(value = "startTime", defaultValue = "0") long startTime
+            , @RequestParam(value = "endTime", defaultValue = "0") long endTime) {
+        Optional<List<MemoEntity>> memoEntities;
+        if (startTime * endTime == 0) {
+            memoEntities = tokenRepository.findByToken(authorization).flatMap(it -> memoRepository.findAllByUserEntity(it.getUserEntity()));
+        } else {
+            memoEntities = tokenRepository.findByToken(authorization).flatMap(it -> memoRepository.findAllByUserEntityAndCreateTimeBetween(it.getUserEntity(), startTime, endTime));
+        }
         return memoEntities.orElseGet(ArrayList::new);
     }
 
